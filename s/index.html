@@ -22,26 +22,31 @@
   const ts = new Date().toISOString();
   const payload = { user_id, ts, station };
 
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwq88FBuldTNMkQQeRQ9s8_4bOKdGkGtITBgWl2gHOSWw2QyQj3BzrU6Aj0iWEz8VYqdg/exec"; // .../exec
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwq88FBuldTNMkQQeRQ9s8_4bOKdGkGtITBgWl2gHOSWw2QyQj3BzrU6Aj0iWEz8VYqdg/exec";
 
   async function send() {
     const el = document.getElementById("status");
 
-    if (!station) { el.textContent = "Fehler: ?station= fehlt"; return; }
+    if (!station) {
+      el.textContent = "Fehler: ?station= fehlt";
+      return;
+    }
 
     try {
-      const res = await fetch(SCRIPT_URL, {
+      // Wichtig:
+      // - mode:"no-cors" vermeidet CORS-Fehler im Browser
+      // - kein res.json(), weil no-cors die Antwort "opaque" macht
+      await fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
 
-      const out = await res.json();
-      if (!out.ok) throw new Error(out.error || "unknown");
-
-      el.textContent = "OK – erfasst.";
+      el.textContent = "OK – gesendet.";
     } catch (e) {
-      el.textContent = "Fehler beim Erfassen.";
+      // Hier landen wir nur bei echten Netzwerkfehlern
+      el.textContent = "Fehler beim Senden (Netzwerk).";
       console.error(e);
     }
   }
