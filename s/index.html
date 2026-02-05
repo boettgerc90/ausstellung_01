@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tracking</title>
+</head>
+<body>
+  <p id="status">Erfasse anonym …</p>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const station = (params.get("station") || "").toUpperCase();
+
+  const KEY = "exhibit_user_id";
+  let user_id = localStorage.getItem(KEY);
+  if (!user_id) {
+    user_id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)) + "-" + Date.now();
+    localStorage.setItem(KEY, user_id);
+  }
+
+  const ts = new Date().toISOString();
+  const payload = { user_id, ts, station };
+
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwq88FBuldTNMkQQeRQ9s8_4bOKdGkGtITBgWl2gHOSWw2QyQj3BzrU6Aj0iWEz8VYqdg/exec"; // .../exec
+
+  async function send() {
+    const el = document.getElementById("status");
+
+    if (!station) { el.textContent = "Fehler: ?station= fehlt"; return; }
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || "unknown");
+
+      el.textContent = "OK – erfasst.";
+    } catch (e) {
+      el.textContent = "Fehler beim Erfassen.";
+      console.error(e);
+    }
+  }
+
+  send();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "A12": {
+    "title": "Station A12 – Einführung",
+    "text": "Kurzer Text zur Station A12. Optional mit weiterführenden Infos.",
+
+  },
+  "B03": {
+    "title": "Station B03 – Objekt 3",
+    "text": "Beschreibung zu Objekt 3. Optional Video-Link etc."
+  }
+}
